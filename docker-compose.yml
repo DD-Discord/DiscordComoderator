@@ -1,0 +1,11 @@
+services:
+  discordcomoderator:
+    image: ghcr.io/dd-discord/discordcomoderator:master
+    volumes:
+       - /root/containers/discordcomoderator/env:/discordcomoderator/.env.local
+       - /root/containers/discordcomoderator/data:/discordcomoderator/data
+    logging:
+      driver: journald
+      options:
+        tag: "{{.ImageName}}/{{.Name}}/{{.ID}}"
+    restart: unless-stopped
