@@ -3,6 +3,7 @@ const { Message, EmbedBuilder } = require("discord.js");
 /**
  * @param {Message} message
  * @param {string} report
+ * @param {{pingId: string?}} options
  */
 function buildReportEmbed(message, report, options) {
   const embed = new EmbedBuilder()

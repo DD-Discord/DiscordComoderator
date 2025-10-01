@@ -110,6 +110,7 @@ function replaceTemplate(template, message, data) {
     .replaceAll('{joinedAt}', member.joinedAt.toLocaleDateString("en-US"))
     .replaceAll('{now}', new Date().toLocaleDateString("en-US"))
     .replaceAll('{roles}', member.roles.cache.filter(r => !ignoreRolesRegex.test(r.name)).filter(r => r.name !== "@everyone").map(r => '"' + r.name + '"').join(", "))
+    .replaceAll('{channelName}', message.channel.name)
     .replaceAll('{message}', message.content);
 }
 
