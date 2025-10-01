@@ -1,5 +1,6 @@
-const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
-const addInstruction = require('../interactions/buttons/add-instruction');
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require("discord.js");
+const addInstructionButton = require('../interactions/buttons/add-instruction');
+const instructionModal = require('../interactions/modals/instruction');
 
 /**
  * An instruction for the LLM.
@@ -10,6 +11,31 @@ const addInstruction = require('../interactions/buttons/add-instruction');
  * @property {string} text
  */
 
+/**
+ * @param {Instruction} instruction 
+ * @returns {ModalBuilder}
+ */
+function buildInstructionModal(instruction = {}) {
+  const modalId = instruction.instructionId 
+    ? instructionModal.name + '/' + instruction.instructionId 
+    : instructionModal.name;
+  const modal = new ModalBuilder()
+    .setCustomId(modalId)
+    .setTitle("Moderation instruction");
+
+  const text = new TextInputBuilder()
+    .setCustomId("text")
+    .setLabel("Text")
+    .setPlaceholder("Explain the moderation instruction in one or two sentences.")
+    .setStyle(TextInputStyle.Paragraph)
+    .setRequired(true)
+    .setValue(instruction.text ?? '');
+  const textRow = new ActionRowBuilder().addComponents(text);
+
+  modal.addComponents(textRow);
+  return modal;
+}
+module.exports.buildInstructionModal = buildInstructionModal;
 
 /**
  * @param {Instruction[]} instructions 
@@ -23,14 +49,14 @@ function buildInstructionsEmbed(instructions) {
   for (const instruction of instructions) {
     embed.addFields([
       {
-        name: 'a',
-        value: 'a',
+        name: 'Instruction `' + instruction.instructionId + '`',
+        value: '```\n' + instruction.text + '\n```',
       }
     ])
   }
 
   const addButton = new ButtonBuilder()
-    .setCustomId(addInstruction.name)
+    .setCustomId(addInstructionButton.name)
     .setLabel('Add new instruction')
     .setStyle(ButtonStyle.Primary);
 

@@ -25,7 +25,7 @@ module.exports.execute = async function(interaction) {
       prompt: dedent`
       You are a Discord bot called 'Comoderator' on the server '{guildName}'. Your job is to alert moderators about suspicious messages.
 
-      You will receive user messages in this format:
+      You will receive user messages in this format, followed by the actual message:
       {template}
 
       And respond with a JSON message in the following format:
@@ -41,24 +41,29 @@ module.exports.execute = async function(interaction) {
       `,
       // The template for a single message to moderate
       template: dedent`
-      You have received a new message, please judge it according to your instructions. Remember to respond in the correct format.
-
       User information
       User: {userName}
       Display Name: {displayName}
-      Account Age: {accountAge} (Today is {now})
+      Discord account creation date: {accountAge} (Today is {now})
       Roles: {roles}
-      Message:
-      {message}
       `,
       // Ignore separator roles by default
       ignoreRolesRegex: `$\.\.\.\.\.`,
+      model: 'deepseek-r1',
     };
   }
 
   const modal = new ModalBuilder()
     .setCustomId(systemPromptModal.name)
     .setTitle("Edit Comoderator System Prompt");
+
+  const model = new TextInputBuilder()
+    .setCustomId("model")
+    .setLabel("LLM model to use")
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true)
+    .setValue(data.model);
+  const modelRow = new ActionRowBuilder().addComponents(model);
 
   const prompt = new TextInputBuilder()
     .setCustomId("prompt")
@@ -76,7 +81,7 @@ module.exports.execute = async function(interaction) {
     .setValue(data.template);
   const templateRow = new ActionRowBuilder().addComponents(template);
 
-  modal.addComponents(promptRow, templateRow);
+  modal.addComponents(modelRow, promptRow, templateRow);
 
   dbWrite("prompts", interaction.guildId, data);
   

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const crypto = require("crypto");
 
 /**
  * A table name.
@@ -8,15 +9,20 @@ const path = require('path');
 
 const cache = {};
 
+function tableToStr(table) {
+  if (Array.isArray(table)) {
+    table = table.join('/');
+  }
+  return table;
+}
+
 /**
  * Gets the cache of a table.
  * @param {Table} table The table name
  * @returns {Record<string, any>} The cache
  */
 function tableCache(table) {
-  if (Array.isArray(table)) {
-    table = table.join('/');
-  }
+  table = tableToStr(table);
   let tableCache = cache[table];
   if (!tableCache) {
     tableCache = {};
@@ -24,6 +30,15 @@ function tableCache(table) {
   }
   return tableCache;
 }
+
+/**
+ * Generates a random hexadecimal ID string.
+ * @returns {string} The ID.
+ */
+function dbId() {
+  return crypto.randomUUID().toString().replaceAll('-', '');
+}
+module.exports.dbId = dbId;
 
 function dbRegister(table) {
   const dir = dbDir(table);
@@ -43,7 +58,15 @@ function dbDeserialize(data) {
 }
 module.exports.dbDeserialize = dbDeserialize;
 
+/**
+ * Deletes an entry from the database.
+ * @param {Table} table The table name
+ * @param {string} id The record ID.
+ */
 function dbDelete(table, id) {
+  if (typeof id !== 'string') {
+    throw new Error(`Invalid ID '${id}' for table '${tableToStr(table)}'`);
+  }
   const file = dbFile(table, id);
   if (fs.existsSync(file)) {
     fs.unlinkSync(file);
@@ -53,6 +76,9 @@ function dbDelete(table, id) {
 module.exports.dbDelete = dbDelete;
 
 function dbWrite(table, id, data) {
+  if (typeof id !== 'string') {
+    throw new Error(`Invalid ID '${id}' for table '${tableToStr(table)}'`);
+  }
   const file = dbFile(table, id);
   fs.writeFileSync(file, dbSerialize(data));
   tableCache(table)[id] = data;
@@ -66,6 +92,9 @@ module.exports.dbWrite = dbWrite;
  * @returns {object | null} The entry
  */
 function dbGet(table, id) {
+  if (typeof id !== 'string') {
+    throw new Error(`Invalid ID '${id}' for table '${tableToStr(table)}'`);
+  }
   const file = dbFile(table, id);
   let data = tableCache(table)[id];
   if (data === undefined) {

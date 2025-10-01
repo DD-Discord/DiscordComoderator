@@ -1,5 +1,5 @@
-const { GuildMember, Message, ModalSubmitInteraction, Guild } = require("discord.js");
-const { dbGetAll, dbGet, dbWrite, dbSerialize } = require("./db");
+const { GuildMember, Message, Guild } = require("discord.js");
+const { dbGetAll, dbGet } = require("./db");
 const { default: ollama } = require('ollama');
 
 /**
@@ -55,11 +55,12 @@ async function runLlm(message) {
     return;
   }
 
-  const systemPrompt = replaceSystemPrompt(data.prompt, message.guild, data);
+  const instructions = dbGetAll(["instructions", message.guildId]);
+  const systemPrompt = replaceSystemPrompt(data.prompt, message.guild, instructions, data);
   const prompt = replaceTemplate(data.template, message, data);
   
   const response = await ollama.chat({
-    model: "gemma3",
+    model: data.model,
     messages: [
       { role: "system", content: systemPrompt },
       { role: "system", content: prompt },
@@ -70,11 +71,11 @@ async function runLlm(message) {
   let content = response.message.content;
   if (content.startsWith('```json')) {
     content = content.substring(8);
-    content = content.substring(0, content.length - 3)
+    content = content.substring(0, content.length - 4)
   }
 
   const json = JSON.parse(content)
-  message.reply(`Flag? ${json.flagMessage}\n${json.reason}`)
+  message.reply(`# Flag? \`${json.flagMessage}\`\n## Reason\n\`\`\`\n${json.reason}\`\`\``)
   console.log(json)
 }
 
@@ -82,9 +83,9 @@ async function runLlm(message) {
  * @param {string} prompt 
  * @param {Guild} guild 
  */
-function replaceSystemPrompt(prompt, guild, data) {
+function replaceSystemPrompt(prompt, guild, instructions, data) {
   return prompt
-    .replaceAll('{instructions}', '- Keep the reason to a single sentence.') //- Please flag ALL messages as spam from members without the "lvl 5" role.\n- If they have the "lvl 5" role, NEVER flag it as spam.\n- Keep the reason to a single sentence.\n
+    .replaceAll('{instructions}', instructions.map(i => '- ' + i.text.replaceAll('\n', ' ')).join('\n'))
     .replaceAll('{guildName}', data.guildName)
     .replaceAll('{template}', data.template);
 }
