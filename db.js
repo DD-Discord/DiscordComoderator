@@ -1,9 +1,22 @@
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * A table name.
+ * @typedef {(string | string[])} Table
+ */
+
 const cache = {};
 
+/**
+ * Gets the cache of a table.
+ * @param {Table} table The table name
+ * @returns {Record<string, any>} The cache
+ */
 function tableCache(table) {
+  if (Array.isArray(table)) {
+    table = table.join('/');
+  }
   let tableCache = cache[table];
   if (!tableCache) {
     tableCache = {};
@@ -15,7 +28,7 @@ function tableCache(table) {
 function dbRegister(table) {
   const dir = dbDir(table);
   if (!fs.existsSync(dir)){
-    fs.mkdirSync(dir);
+    fs.mkdirSync(dir, { recursive: true });
   }
 }
 module.exports.dbRegister = dbRegister;
@@ -48,7 +61,7 @@ module.exports.dbWrite = dbWrite;
 
 /**
  * Gets an entry from the database.
- * @param {string} table The table name
+ * @param {Table} table The table name
  * @param {string} id The record ID.
  * @returns {object | null} The entry
  */
@@ -70,7 +83,7 @@ module.exports.dbGet = dbGet;
 
 /**
  * Gets all entires of a given table from the database.
- * @param {string} table The table name
+ * @param {Table} table The table name
  * @returns {object[]} The entries
  */
 function dbGetAll(table) {
@@ -92,15 +105,22 @@ function dbGetAll(table) {
 module.exports.dbGetAll = dbGetAll;
 
 function dbDir(table) {
-  return path.join('data', dbSafe(table));
+  return path.join('data', ...dbSafe(table));
 }
 
 function dbFile(table, id) {
-  return path.join('data', dbSafe(table), `${dbSafe(id)}.json`);
+  return path.join('data', ...dbSafe(table), `${dbSafe(id).join('')}.json`);
 }
 
-function dbSafe(str) {
-  return str.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+/**
+ * @param {Table} value
+ * @returns {string[]}
+ */
+function dbSafe(value) {
+  if (Array.isArray(value)) {
+    return value.flatMap(dbSafe)
+  }
+  return [value.replace(/[^a-z0-9]/gi, '_').toLowerCase()];
 }
 
 function reviver(key, value) {

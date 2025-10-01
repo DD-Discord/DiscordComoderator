@@ -2,8 +2,9 @@ const { CommandInteraction, SlashCommandBuilder, Role, ModalBuilder, TextInputBu
 const { dbGet, dbWrite } = require("../db");
 const { PermissionFlagsBits, TextInputStyle } = require('discord-api-types/v10');
 const dedent = require('string-dedent');
+const systemPromptModal = require('../modals/system-prompt');
 
-module.exports.name = "comoderator-set-prompt";
+module.exports.name = "comoderator-prompt";
 
 module.exports.data = new SlashCommandBuilder()
   .setName(module.exports.name)
@@ -56,7 +57,7 @@ module.exports.execute = async function(interaction) {
   }
 
   const modal = new ModalBuilder()
-    .setCustomId("systemPrompt")
+    .setCustomId(systemPromptModal.name)
     .setTitle("Edit Comoderator System Prompt");
 
   const prompt = new TextInputBuilder()

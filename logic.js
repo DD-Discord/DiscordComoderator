@@ -1,5 +1,6 @@
 const { GuildMember, Message, ModalSubmitInteraction, Guild } = require("discord.js");
 const { dbGetAll, dbGet, dbWrite, dbSerialize } = require("./db");
+const { default: ollama } = require('ollama');
 
 /**
  * Checks and removes roles.
@@ -40,37 +41,41 @@ async function maybeUpdateRoles(oldMember, newMember) {
 }
 
 /**
- * Handles a modal submit
- * @param {ModalSubmitInteraction} interaction The interaction.
- */
-function handleModalSubmit(interaction) {
-  if (interaction.customId === 'systemPrompt') {
-    console.log(interaction.fields)
-    const data = dbGet("prompts", interaction.guildId);
-    data.guildName = interaction.guild.name;
-    data.prompt = interaction.fields.getTextInputValue('prompt');
-    data.template = interaction.fields.getTextInputValue('template');
-    dbWrite('prompts', interaction.guildId, data);
-    interaction.reply({
-      content: '# LLM prompts updated\n\n## System prompt\n```\n' + data.prompt.substring(0, 1000) + '\n```\n## Moderation request prompt\n```\n' + data.template.substring(0, 1000) + '\n```'
-    })
-  }
-}
-module.exports.handleModalSubmit = handleModalSubmit;
-
-/**
  * Runs the LLM on the given message
  * @param {Message} message The message.
  * @returns {Promise<void>} Once done
  */
 async function runLlm(message) {
+  if (message.author.bot || message.author.system) {
+    return;
+  }
+
   const data = dbGet("prompts", message.guildId);
   if (data === null) {
     return;
   }
 
+  const systemPrompt = replaceSystemPrompt(data.prompt, message.guild, data);
   const prompt = replaceTemplate(data.template, message, data);
-  console.log(prompt)
+  
+  const response = await ollama.chat({
+    model: "gemma3",
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "system", content: prompt },
+      { role: "user", content: message.content },
+    ],
+  })
+  
+  let content = response.message.content;
+  if (content.startsWith('```json')) {
+    content = content.substring(8);
+    content = content.substring(0, content.length - 3)
+  }
+
+  const json = JSON.parse(content)
+  message.reply(`Flag? ${json.flagMessage}\n${json.reason}`)
+  console.log(json)
 }
 
 /**
@@ -79,9 +84,9 @@ async function runLlm(message) {
  */
 function replaceSystemPrompt(prompt, guild, data) {
   return prompt
-    .replaceAll('{instructions}', '- Please flag ALL messages as spam from members without the "lvl 5" role.\n- If they have the "lvl 5" role, NEVER flag it as spam.')
+    .replaceAll('{instructions}', '- Keep the reason to a single sentence.') //- Please flag ALL messages as spam from members without the "lvl 5" role.\n- If they have the "lvl 5" role, NEVER flag it as spam.\n- Keep the reason to a single sentence.\n
     .replaceAll('{guildName}', data.guildName)
-    .replaceAll('{template}', date.template);
+    .replaceAll('{template}', data.template);
 }
 /**
  * @param {string} template 
@@ -97,7 +102,7 @@ function replaceTemplate(template, message, data) {
     .replaceAll('{accountAge}', member.user.createdAt.toLocaleDateString("en-US"))
     .replaceAll('{joinedAt}', member.joinedAt.toLocaleDateString("en-US"))
     .replaceAll('{now}', new Date().toLocaleDateString("en-US"))
-    .replaceAll('{roles}', member.roles.cache.filter(r => !ignoreRolesRegex.test(r.name)).map(r => '"' + r.name + '"').join(", "))
+    .replaceAll('{roles}', member.roles.cache.filter(r => !ignoreRolesRegex.test(r.name)).filter(r => r.name !== "@everyone").map(r => '"' + r.name + '"').join(", "))
     .replaceAll('{message}', message.content);
 }
 

@@ -43,6 +43,6 @@ module.exports.handleCommand = async function handleCommand(interaction) {
       commands[commandName].execute(interaction);
     }
   } catch (error) {
-    console.error(error);
+    console.error('Command error:', error);
   }
 }

@@ -1,7 +1,9 @@
 const { Client, GatewayIntentBits, Events } = require("discord.js");
 const { deployCommands, handleCommand } = require("./deploy-commands");
+const { handleButton } = require("./deploy-buttons");
+const { handleModal } = require("./deploy-modals");
 const config = require("./config");
-const { runLlm, handleModalSubmit } = require("./logic");
+const { runLlm } = require("./logic");
 const { dbRegister } = require("./db");
 
 // Tables
@@ -20,6 +22,7 @@ client.once(Events.ClientReady, () => {
 });
 
 client.on(Events.GuildAvailable, async (guild) => {
+  dbRegister(["instructions", guild.id]);
   await deployCommands({ guildId: guild.id });
 });
 
@@ -31,19 +34,15 @@ client.on(Events.MessageCreate, async (message) => {
 
 client.on(Events.InteractionCreate, async (interaction) => {
   if (interaction.isCommand()) {
-    try {
-      await handleCommand(interaction);
-    } catch (error) {
-      console.error('Command error:', error);
-    }
+    await handleCommand(interaction);
   }
 
+  if (interaction.isButton()) {
+    await handleButton(interaction);
+  }
+  
   if (interaction.isModalSubmit()) {
-    try {
-      handleModalSubmit(interaction);
-    } catch (error) {
-      console.error('Modal submit error:', error);
-    }
+    await handleModal(interaction);
   }
 });
 client.login(config.DISCORD_TOKEN);
