@@ -1,7 +1,7 @@
 const { CommandInteraction, SlashCommandBuilder } = require("discord.js");
-const { dbGetAll } = require("../db");
+const { dbGetAll } = require("../../db");
 const { PermissionFlagsBits } = require('discord-api-types/v10');
-const { buildInstructionsEmbed } = require("../instructions");
+const { buildInstructionsEmbed } = require("../../instructions");
 
 module.exports.name = "comoderator-instructions";
 

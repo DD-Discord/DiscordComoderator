@@ -1,5 +1,5 @@
 const { ModalSubmitInteraction } = require("discord.js");
-const { dbGet, dbWrite } = require("../db");
+const { dbGet, dbWrite } = require("../../db");
 
 module.exports.name = "system-prompt";
 

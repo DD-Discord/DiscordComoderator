@@ -1,7 +1,5 @@
 const { Client, GatewayIntentBits, Events } = require("discord.js");
-const { deployCommands, handleCommand } = require("./deploy-commands");
-const { handleButton } = require("./deploy-buttons");
-const { handleModal } = require("./deploy-modals");
+const interactions = require("./interactions");
 const config = require("./config");
 const { runLlm } = require("./logic");
 const { dbRegister } = require("./db");
@@ -23,7 +21,7 @@ client.once(Events.ClientReady, () => {
 
 client.on(Events.GuildAvailable, async (guild) => {
   dbRegister(["instructions", guild.id]);
-  await deployCommands({ guildId: guild.id });
+  await interactions.deploy({ guildId: guild.id });
 });
 
 client.on(Events.MessageCreate, async (message) => {
@@ -33,16 +31,9 @@ client.on(Events.MessageCreate, async (message) => {
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
-  if (interaction.isCommand()) {
-    await handleCommand(interaction);
-  }
-
-  if (interaction.isButton()) {
-    await handleButton(interaction);
-  }
-  
-  if (interaction.isModalSubmit()) {
-    await handleModal(interaction);
+  const handled = await interactions.handle(interaction);
+  if (!handled) {
+    console.warn('Unhandled interaction', interaction);
   }
 });
 client.login(config.DISCORD_TOKEN);

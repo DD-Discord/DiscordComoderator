@@ -1,6 +1,6 @@
 const { REST, Routes, CommandInteraction } = require("discord.js");
 const { commands } = require("./commands");
-const config = require("./config");
+const config = require("../config");
 
 const commandsData = Object.values(commands).map((command) => command.data);
 
@@ -36,13 +36,15 @@ module.exports.deployCommands = async function deployCommands({ guildId }) {
  */
 module.exports.handleCommand = async function handleCommand(interaction) {
   try {
-    /** @type {{commandName: keyof commands}} */
     const { commandName } = interaction;
     console.log("Handle command %s in %s", commandName, interaction.guildId)
     if (commands[commandName]) {
       commands[commandName].execute(interaction);
+      return true;
     }
   } catch (error) {
     console.error('Command error:', error);
+    return true;
   }
+  return false;
 }

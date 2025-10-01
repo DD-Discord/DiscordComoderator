@@ -1,5 +1,5 @@
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
-const addInstruction = require('../buttons/add-instruction');
+const addInstruction = require('../interactions/buttons/add-instruction');
 
 /**
  * An instruction for the LLM.

@@ -1,5 +1,5 @@
 const { CommandInteraction, SlashCommandBuilder, Role, ModalBuilder, TextInputBuilder, ActionRowBuilder } = require("discord.js");
-const { dbGet, dbWrite } = require("../db");
+const { dbGet, dbWrite } = require("../../db");
 const { PermissionFlagsBits, TextInputStyle } = require('discord-api-types/v10');
 const dedent = require('string-dedent');
 const systemPromptModal = require('../modals/system-prompt');
