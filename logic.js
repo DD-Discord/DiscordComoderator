@@ -61,14 +61,15 @@ async function runLlm(message) {
   
   const response = await ollama.chat({
     model: data.model,
+    think: false,
     messages: [
       { role: "system", content: systemPrompt },
-      { role: "system", content: prompt },
-      { role: "user", content: message.content },
+      { role: "user", content: prompt },
     ],
   })
   
   let content = response.message.content;
+  console.log(content)
   if (content.startsWith('```json')) {
     content = content.substring(8);
     content = content.substring(0, content.length - 4)
@@ -76,7 +77,6 @@ async function runLlm(message) {
 
   const json = JSON.parse(content)
   message.reply(`# Flag? \`${json.flagMessage}\`\n## Reason\n\`\`\`\n${json.reason}\`\`\``)
-  console.log(json)
 }
 
 /**

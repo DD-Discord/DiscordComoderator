@@ -25,7 +25,7 @@ module.exports.execute = async function(interaction) {
       prompt: dedent`
       You are a Discord bot called 'Comoderator' on the server '{guildName}'. Your job is to alert moderators about suspicious messages.
 
-      You will receive user messages in this format, followed by the actual message:
+      You will receive user messages in this format:
       {template}
 
       And respond with a JSON message in the following format:
@@ -41,15 +41,15 @@ module.exports.execute = async function(interaction) {
       `,
       // The template for a single message to moderate
       template: dedent`
-      User information
       User: {userName}
       Display Name: {displayName}
       Discord account creation date: {accountAge} (Today is {now})
       Roles: {roles}
+      Message: {message}
       `,
       // Ignore separator roles by default
       ignoreRolesRegex: `$\.\.\.\.\.`,
-      model: 'deepseek-r1',
+      model: 'gpt-oss:20b',
     };
   }
 

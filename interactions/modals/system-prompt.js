@@ -14,6 +14,6 @@ module.exports.execute = async function (interaction) {
   data.model = interaction.fields.getTextInputValue('model');
   dbWrite('prompts', interaction.guildId, data);
   interaction.reply({
-    content: '# LLM prompts updated\n\n## System prompt\n```\n' + data.prompt.substring(0, 1000) + '\n```\n## Moderation request prompt\n```\n' + data.template.substring(0, 1000) + '\n```'
+    content: '# Comoderator settings updated\n\n## LLM model\n`' + data.model + '`\n## System prompt\n```\n' + data.prompt.substring(0, 1000) + '\n```\n## Moderation request prompt\n```\n' + data.template.substring(0, 1000) + '\n```'
   })
 };
