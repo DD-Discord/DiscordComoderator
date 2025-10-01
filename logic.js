@@ -1,6 +1,7 @@
 const { GuildMember, Message, Guild } = require("discord.js");
 const { dbGetAll, dbGet } = require("./db");
 const { default: ollama } = require('ollama');
+const { buildReportEmbed } = require('./report');
 
 /**
  * Checks and removes roles.
@@ -75,8 +76,13 @@ async function runLlm(message) {
     content = content.substring(0, content.length - 4)
   }
 
-  const json = JSON.parse(content)
-  message.reply(`# Flag? \`${json.flagMessage}\`\n## Reason\n\`\`\`\n${json.reason}\`\`\``)
+  const json = JSON.parse(content);
+  if (json.flagMessage) {
+    const channelData = dbGet("channels", message.guildId);
+    const reportChannel = await message.guild.channels.fetch(channelData.id);
+    reportChannel.send(buildReportEmbed(message, json.reason, channelData));
+  }
+  //message.reply(`# Flag? \`${json.flagMessage}\`\n## Reason\n\`\`\`\n${json.reason}\`\`\``)
 }
 
 /**

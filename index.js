@@ -6,6 +6,7 @@ const { dbRegister } = require("./db");
 
 // Tables
 dbRegister("prompts");
+dbRegister("channels");
 
 const client = new Client({
   intents: [
