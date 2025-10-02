@@ -44,7 +44,9 @@ function dbRegister(table) {
   const dir = dbDir(table);
   if (!fs.existsSync(dir)){
     fs.mkdirSync(dir, { recursive: true });
+    console.log('Created table', table, dir);
   }
+  console.log('Registered table', table)
 }
 module.exports.dbRegister = dbRegister;
 

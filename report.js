@@ -1,6 +1,5 @@
 const { Message, EmbedBuilder } = require("discord.js");
-
-const WHITESPACE_REGEX = /\s+/g;
+const { maxLength, sanitizeWhitespace } = require('./fmt');
 
 /**
  * @param {Message} message

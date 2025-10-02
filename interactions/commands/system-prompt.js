@@ -1,8 +1,5 @@
-const { CommandInteraction, SlashCommandBuilder, Message, Channel, Collection, Attachment } = require("discord.js");
-const { dbWrite } = require("../../db");
+const { CommandInteraction, SlashCommandBuilder } = require("discord.js");
 const { PermissionFlagsBits } = require('discord-api-types/v10');
-const { parseRulesFromMessage } = require("../../rules");
-const { wrapInCode } = require('../../fmt');
 const { getSystemPrompt } = require("../../prompt");
 
 module.exports.name = "comoderator-system-prompt";
