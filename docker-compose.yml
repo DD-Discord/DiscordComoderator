@@ -8,3 +8,9 @@ services:
   ollama:
     image: ollama/ollama
     restart: unless-stopped
+    entrypoint:
+      [
+        "/bin/bash",
+        "-c",
+        "ollama serve & sleep 5 && ollama pull gpt-oss:20b && wait",
+      ]
