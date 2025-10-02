@@ -1,5 +1,7 @@
 const { Message, EmbedBuilder } = require("discord.js");
 
+const WHITESPACE_REGEX = /\s+/g;
+
 /**
  * @param {Message} message
  * @param {{reason: string, action: string}} report
@@ -19,7 +21,7 @@ function buildReportEmbed(message, report, options) {
   });
 
   embed.addFields([
-    { name: ':e_mail: Offending message', value: '> ' + message.content, },
+    { name: ':e_mail: Offending message', value: '> ' + message.content.replaceAll(WHITESPACE_REGEX, ' '), },
     { name: ':page_facing_up: Comoderator report', value: '> ' + report.reason, },
     { name: ':information_source: Comoderator recommendation', value: '> Comoderator recommends the following action: ' + report.action},
   ]);

@@ -36,7 +36,7 @@ module.exports.execute = async function(interaction) {
       }
 
       - "flag" is either true or false, if true the moderators will be alerted.
-      - "action" is contains a string on the action you would recommend the moderators to take. The following actions are available, in decreasing severity:
+      - "action" contains a string of the action you would recommend the moderators to take. The following actions are available, in decreasing severity:
         - "Ban user"
         - "Warn user"
         - "Delete message"

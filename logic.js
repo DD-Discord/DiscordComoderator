@@ -2,6 +2,7 @@ const { GuildMember, Message, Guild } = require("discord.js");
 const { dbGetAll, dbGet } = require("./db");
 const { default: ollama } = require('ollama');
 const { buildReportEmbed } = require('./report');
+const { styleText } = require("node:util");
 
 /**
  * Checks and removes roles.
@@ -41,6 +42,14 @@ async function maybeUpdateRoles(oldMember, newMember) {
   }
 }
 
+const COLOR = {
+  RESET: '\x1b[0m',
+  DIM: "\x1b[2m",
+  FG_MAGENTA: "\x1b[35m"
+}
+
+const WHITESPACE_REGEX = /\s+/g;
+
 /**
  * Runs the LLM on the given message
  * @param {Message} message The message.
@@ -70,7 +79,9 @@ async function runLlm(message) {
   })
   
   let content = response.message.content;
-  console.log(message.author.username + ' - ' + message.content + '\n' + content)
+  console.log(`${COLOR.FG_MAGENTA}${message.author.username}${COLOR.RESET} ${COLOR.DIM}(${message.channel.name} in ${message.guild.name})${COLOR.RESET}: ${message.content.replaceAll('\n', ' ')}\n${content.replaceAll(WHITESPACE_REGEX, ' ')}`);
+  //console.log(`${styleText('magenta', message.author.username)} ${styleText('dim', `(${message.channel.name} in ${message.guild.name})`)}: ${message.content.replaceAll('\n', ' ')}\n${content.replaceAll('\n', ' ')}`);
+  // Some models wrap code in Markdown tags
   if (content.startsWith('```json')) {
     content = content.substring(8);
     content = content.substring(0, content.length - 4)
