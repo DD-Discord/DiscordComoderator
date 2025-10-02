@@ -4,13 +4,12 @@ const { PermissionFlagsBits, TextInputStyle } = require('discord-api-types/v10')
 const dedent = require('string-dedent');
 const systemPromptModal = require('../modals/system-prompt');
 
-module.exports.name = "comoderator-prompt";
+module.exports.name = "comoderator-llm-settings";
 
 module.exports.data = new SlashCommandBuilder()
   .setName(module.exports.name)
-  .setDescription("Sets the system prompt for the Comoderator LLM.")
+  .setDescription("Updates the Comoderator LLM settings.")
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
-    
 
 /**
  * @param {CommandInteraction} interaction
@@ -67,7 +66,7 @@ module.exports.execute = async function(interaction) {
 
   const modal = new ModalBuilder()
     .setCustomId(systemPromptModal.name)
-    .setTitle("Edit Comoderator System Prompt");
+    .setTitle("Edit Comoderator LLM settings");
 
   const model = new TextInputBuilder()
     .setCustomId("model")
