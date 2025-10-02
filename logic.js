@@ -1,17 +1,7 @@
 const { Message } = require("discord.js");
 const { dbGet } = require("./db");
-const { default: ollama } = require('ollama');
 const { buildReportEmbed } = require('./report');
-const { getSystemPrompt, getModerationPrompt } = require("./prompt");
 const { generateReport } = require("./llm");
-
-const COLOR = {
-  RESET: '\x1b[0m',
-  DIM: "\x1b[2m",
-  FG_MAGENTA: "\x1b[35m"
-}
-
-const WHITESPACE_REGEX = /\s+/g;
 
 /**
  * Runs the LLM on the given message
@@ -19,7 +9,7 @@ const WHITESPACE_REGEX = /\s+/g;
  * @returns {Promise<void>} Once done
  */
 async function moderateMessage(message) {
-  const report = generateReport(message);
+  const report = await generateReport(message);
   if (!report) {
     return;
   }
