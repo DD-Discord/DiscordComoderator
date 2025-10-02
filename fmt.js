@@ -23,11 +23,18 @@ function maxLength(value, maxLength) {
 }
 module.exports.maxLength = maxLength;
 
-function wrapInCode(value, maxLengthValue = 1500) {
+function wrapInCode(value, opts = null) {
   if (typeof value !== 'string') {
     value = dbSerialize(value);
   }
-  value = maxLength(value, maxLengthValue);
-  return '```\n' + value + '\n```'
+  value = maxLength(value, opts?.maxLength ?? 1500);
+  return '```' + (opts?.language ?? '') + '\n' + value + '\n```'
 }
 module.exports.wrapInCode = wrapInCode;
+
+const COLOR = {
+  RESET: '\x1b[0m',
+  DIM: "\x1b[2m",
+  FG_MAGENTA: "\x1b[35m"
+}
+module.exports.COLOR = COLOR;

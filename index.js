@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits, Events } = require("discord.js");
 const interactions = require("./interactions");
 const config = require("./config");
-const { runLlm } = require("./logic");
+const { moderateMessage } = require("./logic");
 const { dbRegister } = require("./db");
 
 // Tables
@@ -29,9 +29,9 @@ client.on(Events.GuildAvailable, async (guild) => {
 client.on(Events.MessageCreate, async (message) => {
   if (message.channel != null) {
     try {
-      await runLlm(message);
+      await moderateMessage(message);
     } catch(error) {
-      console.error('Error running LLM', error);
+      console.error('Error moderating message', error);
     }
   }
 });

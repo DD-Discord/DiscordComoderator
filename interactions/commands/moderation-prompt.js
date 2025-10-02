@@ -2,12 +2,14 @@ const { CommandInteraction, SlashCommandBuilder } = require("discord.js");
 const { PermissionFlagsBits } = require('discord-api-types/v10');
 const { getModerationPrompt } = require("../../prompt");
 const { wrapInCode } = require("../../fmt");
+const { generateReport } = require("../../llm");
+const { dbSerialize } = require("../../db");
 
 module.exports.name = "comoderator-moderation-prompt";
 
 module.exports.data = new SlashCommandBuilder()
   .setName(module.exports.name)
-  .setDescription("Gets the moderation prompt current used by the Comoderator.")
+  .setDescription("Gets the moderation prompt & a full report for the given message.")
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addStringOption(option => {
     option.setName("message-id");
@@ -15,12 +17,12 @@ module.exports.data = new SlashCommandBuilder()
     option.setRequired(true);
     return option;
   });
-    
+
 
 /**
  * @param {CommandInteraction} interaction
  */
-module.exports.execute = async function(interaction) {
+module.exports.execute = async function (interaction) {
   const messageId = interaction.options.getString("message-id");
 
   // Fetch message
@@ -41,13 +43,22 @@ module.exports.execute = async function(interaction) {
       content: '# No moderation prompt found\nComoderator is not enabled on this server.'
     });
   }
-  
+
+  const report = await generateReport(message);
+  const reportJson = dbSerialize(report);
+
   // Done
   return interaction.reply({
     content: `# Moderation prompt\nSee attachment for the moderation prompt.`,
-    files: [{
-      attachment: Buffer.from(moderationPrompt, 'utf-8'),
-      name: message.id + '.txt',
-    }],
+    files: [
+      {
+        attachment: Buffer.from(moderationPrompt, 'utf-8'),
+        name: 'prompt-' + message.id + '.txt',
+      },
+      {
+        attachment: Buffer.from(reportJson, 'utf-8'),
+        name: 'report-' + message.id + '.json',
+      }
+    ],
   })
 };

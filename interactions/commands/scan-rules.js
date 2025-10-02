@@ -39,6 +39,10 @@ module.exports.execute = async function(interaction) {
   
   // Done
   return interaction.reply({
-    content: `# Updated rules from ${messages.length} messages\n${wrapInCode(rules)}`,
+    content: `# Updated rules from ${messages.length} messages\nSee the atttachment for all rules.`,
+    files: [{
+      attachment: Buffer.from(rules, 'utf-8'),
+      name: channel.id + '.txt',
+    }],
   })
 };

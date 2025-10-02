@@ -1,6 +1,6 @@
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require("discord.js");
-const addInstructionButton = require('../interactions/buttons/add-instruction');
-const instructionModal = require('../interactions/modals/instruction');
+const addInstructionButton = require('./interactions/buttons/add-instruction');
+const instructionModal = require('./interactions/modals/instruction');
 
 /**
  * An instruction for the LLM.
