@@ -77,10 +77,10 @@ async function runLlm(message) {
   }
 
   const json = JSON.parse(content);
-  if (json.flagMessage) {
+  if (json.flag) {
     const channelData = dbGet("channels", message.guildId);
     const reportChannel = await message.guild.channels.fetch(channelData.id);
-    reportChannel.send(buildReportEmbed(message, json.reason, channelData));
+    reportChannel.send(buildReportEmbed(message, json, channelData));
   }
   //message.reply(`# Flag? \`${json.flagMessage}\`\n## Reason\n\`\`\`\n${json.reason}\`\`\``)
 }

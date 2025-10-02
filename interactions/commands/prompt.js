@@ -30,11 +30,19 @@ module.exports.execute = async function(interaction) {
 
       And respond with a JSON message in the following format:
       {
-        "flagMessage": boolean,
+        "flag": boolean,
+        "action": "string",
         "reason": "string",
       }
 
-      "flagMessages" is either true or false, if true the moderators will be alerted. "reason" is the reason as to why the moderators should be alerted. Only ever respond in the specified JSON format.
+      - "flag" is either true or false, if true the moderators will be alerted.
+      - "action" is contains a string on the action you would recommend the moderators to take. The following actions are available, in decreasing severity:
+        - "Ban user"
+        - "Warn user"
+        - "Delete message"
+        - "Nothing"
+      - "reason" is the reason as to why the moderators should be alerted / take this action.
+      Only ever respond in the specified JSON format.
 
       The moderators have left you with the following instructions on which messages to flag:
       {instructions}
