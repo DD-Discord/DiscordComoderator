@@ -1,12 +1,12 @@
 const { CommandInteraction, SlashCommandBuilder } = require("discord.js");
-const { dbDelete, dbWrite } = require("../../db");
+const { dbWrite } = require("../../db");
 const { PermissionFlagsBits } = require('discord-api-types/v10');
 
-module.exports.name = "comoderator-report-channel";
+module.exports.name = "comoderator-report-settings";
 
 module.exports.data = new SlashCommandBuilder()
   .setName(module.exports.name)
-  .setDescription("Sets the report channel to use.")
+  .setDescription("Sets the report settings to use.")
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addChannelOption(option => {
     option.setName("channel");

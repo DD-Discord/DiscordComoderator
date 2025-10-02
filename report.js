@@ -21,8 +21,8 @@ function buildReportEmbed(message, report, options) {
   });
 
   embed.addFields([
-    { name: ':e_mail: Offending message', value: '> ' + message.content.replaceAll(WHITESPACE_REGEX, ' '), },
-    { name: ':page_facing_up: Comoderator report', value: '> ' + report.reason, },
+    { name: ':e_mail: Offending message', value: '> ' + maxLength(sanitizeWhitespace(message.content), 500), },
+    { name: ':page_facing_up: Comoderator report', value: '> ' + maxLength(report.reason, 1000), },
     { name: ':information_source: Comoderator recommendation', value: '> Comoderator recommends the following action: ' + report.action},
   ]);
 

@@ -1,8 +1,8 @@
-const { GuildMember, Message, Guild } = require("discord.js");
+const { GuildMember, Message } = require("discord.js");
 const { dbGetAll, dbGet } = require("./db");
 const { default: ollama } = require('ollama');
 const { buildReportEmbed } = require('./report');
-const { styleText } = require("node:util");
+const { getSystemPrompt, getModerationPrompt } = require("./prompt");
 
 /**
  * Checks and removes roles.
@@ -61,26 +61,23 @@ async function runLlm(message) {
   }
 
   const data = dbGet("prompts", message.guildId);
-  if (data === null) {
+  const systemPrompt = getSystemPrompt(message.guild);
+  const moderationPrompt = getModerationPrompt(message);
+  if (!systemPrompt || !moderationPrompt || !data) {
     return;
   }
 
-  const instructions = dbGetAll(["instructions", message.guildId]);
-  const systemPrompt = replaceSystemPrompt(data.prompt, message.guild, instructions, data);
-  const prompt = replaceTemplate(data.template, message, data);
-  
   const response = await ollama.chat({
     model: data.model,
     think: false,
     messages: [
       { role: "system", content: systemPrompt },
-      { role: "user", content: prompt },
+      { role: "user", content: moderationPrompt },
     ],
   })
   
   let content = response.message.content;
   console.log(`${COLOR.FG_MAGENTA}${message.author.username}${COLOR.RESET} ${COLOR.DIM}(${message.channel.name} in ${message.guild.name})${COLOR.RESET}: ${message.content.replaceAll('\n', ' ')}\n${content.replaceAll(WHITESPACE_REGEX, ' ')}`);
-  //console.log(`${styleText('magenta', message.author.username)} ${styleText('dim', `(${message.channel.name} in ${message.guild.name})`)}: ${message.content.replaceAll('\n', ' ')}\n${content.replaceAll('\n', ' ')}`);
   // Some models wrap code in Markdown tags
   if (content.startsWith('```json')) {
     content = content.substring(8);
@@ -95,36 +92,7 @@ async function runLlm(message) {
       reportChannel.send(buildReportEmbed(message, json, channelData));
     }
   }
-  //message.reply(`# Flag? \`${json.flagMessage}\`\n## Reason\n\`\`\`\n${json.reason}\`\`\``)
 }
 
-/**
- * @param {string} prompt 
- * @param {Guild} guild 
- */
-function replaceSystemPrompt(prompt, guild, instructions, data) {
-  return prompt
-    .replaceAll('{instructions}', instructions.map(i => '- ' + i.text.replaceAll('\n', ' ')).join('\n'))
-    .replaceAll('{guildName}', data.guildName)
-    .replaceAll('{template}', data.template);
-}
-/**
- * @param {string} template 
- * @param {Message} message 
- */
-function replaceTemplate(template, message, data) {
-  const member = message.member;
-  const guild = message.guild;
-  const ignoreRolesRegex = new RegExp(data.ignoreRolesRegex);
-  return template
-    .replaceAll('{userName}', member.user.username)
-    .replaceAll('{displayName}', member.displayName)
-    .replaceAll('{accountAge}', member.user.createdAt.toLocaleDateString("en-US"))
-    .replaceAll('{joinedAt}', member.joinedAt.toLocaleDateString("en-US"))
-    .replaceAll('{now}', new Date().toLocaleDateString("en-US"))
-    .replaceAll('{roles}', member.roles.cache.filter(r => !ignoreRolesRegex.test(r.name)).filter(r => r.name !== "@everyone").map(r => '"' + r.name + '"').join(", "))
-    .replaceAll('{channelName}', message.channel.name)
-    .replaceAll('{message}', message.content);
-}
 
 module.exports.runLlm = runLlm;

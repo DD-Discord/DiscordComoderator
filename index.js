@@ -7,6 +7,7 @@ const { dbRegister } = require("./db");
 // Tables
 dbRegister("prompts");
 dbRegister("channels");
+dbRegister("rules");
 
 const client = new Client({
   intents: [
@@ -27,7 +28,11 @@ client.on(Events.GuildAvailable, async (guild) => {
 
 client.on(Events.MessageCreate, async (message) => {
   if (message.channel != null) {
-    runLlm(message).catch(console.error);
+    try {
+      await runLlm(message);
+    } catch(error) {
+      console.error('Error running LLM', error);
+    }
   }
 });
 

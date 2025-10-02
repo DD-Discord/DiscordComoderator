@@ -46,6 +46,9 @@ module.exports.execute = async function(interaction) {
 
       The moderators have left you with the following instructions on which messages to flag:
       {instructions}
+      
+      These are the rules of the server:
+      {rules}
       `,
       // The template for a single message to moderate
       template: dedent`

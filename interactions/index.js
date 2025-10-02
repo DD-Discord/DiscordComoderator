@@ -4,7 +4,7 @@ const { handleModal } = require("./deploy-modals");
 const { Interaction } = require("discord.js");
 
 function deploy(props) {
-  deployCommands(props)
+  return deployCommands(props)
 }
 module.exports.deploy = deploy;
 

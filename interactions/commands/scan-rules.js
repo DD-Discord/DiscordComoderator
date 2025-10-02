@@ -1,0 +1,44 @@
+const { CommandInteraction, SlashCommandBuilder, Message, Channel, Collection } = require("discord.js");
+const { dbWrite } = require("../../db");
+const { PermissionFlagsBits } = require('discord-api-types/v10');
+const { parseRulesFromMessage } = require("../../rules");
+const { wrapInCode } = require('../../fmt');
+
+module.exports.name = "comoderator-scan-rules";
+
+module.exports.data = new SlashCommandBuilder()
+  .setName(module.exports.name)
+  .setDescription("Updates with server rules by scanning a channel for its contets.")
+  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+  .addChannelOption(option => {
+    option.setName("channel");
+    option.setDescription("The channel to scan for rules.");
+    option.setRequired(true);
+    return option;
+  });
+    
+
+/**
+ * @param {CommandInteraction} interaction
+ */
+module.exports.execute = async function(interaction) {
+  /** @type {Channel} */
+  const channel = interaction.options.getChannel("channel");
+  /** @type {Collection<string, Message>>} */
+  const messagesCollection = await channel.messages.fetch({ limit: 100 });
+  /** @type {Message[]} */
+  const messages = messagesCollection.values().toArray().reverse();
+
+  const rules = messages.map(parseRulesFromMessage).join('\n\n');
+
+  dbWrite('rules', interaction.guildId, {
+    guildId: interaction.guildId,
+    guildName: interaction.guildName,
+    rules,
+  });
+  
+  // Done
+  return interaction.reply({
+    content: `# Updated rules from ${messages.length} messages\n${wrapInCode(rules)}`,
+  })
+};
