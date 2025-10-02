@@ -1,8 +1,11 @@
 const { Message } = require("discord.js");
 const { dbGet } = require("./db");
-const { default: ollama } = require('ollama');
+const { Ollama } = require('ollama');
 const { getSystemPrompt, getModerationPrompt } = require("./prompt");
 const { sanitizeWhitespace, COLOR } = require("./fmt");
+const { OLLAMA_HOST } = require("./config");
+
+const ollama = new Ollama({ host: OLLAMA_HOST });
 
 /**
  * A LLM report
