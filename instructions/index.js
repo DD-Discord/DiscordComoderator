@@ -44,7 +44,7 @@ module.exports.buildInstructionModal = buildInstructionModal;
 function buildInstructionsEmbed(instructions) {
   const embed = new EmbedBuilder();
   embed.setTitle('All instructions for the Comoderator')
-  embed.setDescription('This lists all instructions that are passed to the Comoderator LLM to take into account when moderating messages. The most specific the better.');
+  embed.setDescription('This lists all instructions that are passed to the Comoderator LLM to take into account when moderating messages. The more specific the better.');
 
   for (const instruction of instructions) {
     embed.addFields([

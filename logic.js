@@ -70,7 +70,7 @@ async function runLlm(message) {
   })
   
   let content = response.message.content;
-  console.log(content)
+  console.log(message.author.username + ' - ' + message.content + '\n' + content)
   if (content.startsWith('```json')) {
     content = content.substring(8);
     content = content.substring(0, content.length - 4)
@@ -79,8 +79,10 @@ async function runLlm(message) {
   const json = JSON.parse(content);
   if (json.flag) {
     const channelData = dbGet("channels", message.guildId);
-    const reportChannel = await message.guild.channels.fetch(channelData.id);
-    reportChannel.send(buildReportEmbed(message, json, channelData));
+    if (channelData) {
+      const reportChannel = await message.guild.channels.fetch(channelData.id);
+      reportChannel.send(buildReportEmbed(message, json, channelData));
+    }
   }
   //message.reply(`# Flag? \`${json.flagMessage}\`\n## Reason\n\`\`\`\n${json.reason}\`\`\``)
 }

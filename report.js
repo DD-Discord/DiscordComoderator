@@ -11,7 +11,7 @@ function buildReportEmbed(message, report, options) {
     .setTitle('Comoderator flagged a message')
     .setURL(message.url)
     .setDescription('Please review the report and take action accordingly.')
-    .setFooter({ text: 'Comoderator is an AI and can make mistakes. ' });
+    .setFooter({ text: 'Comoderator is an AI and can make mistakes. Comoderators LLM is locally hosted, no data leaves the server.' });
 
   embed.setAuthor({
     name: message.author.username,
