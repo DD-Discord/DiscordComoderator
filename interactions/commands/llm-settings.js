@@ -61,6 +61,7 @@ module.exports.execute = async function(interaction) {
       // Ignore separator roles by default
       ignoreRolesRegex: `$\.\.\.\.\.`,
       model: 'gpt-oss:20b',
+      enabled: true,
     };
   }
 

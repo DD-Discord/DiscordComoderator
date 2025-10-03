@@ -28,7 +28,11 @@ function wrapInCode(value, opts = null) {
     value = dbSerialize(value);
   }
   value = maxLength(value, opts?.maxLength ?? 1500);
-  return '```' + (opts?.language ?? '') + '\n' + value + '\n```'
+  if (value.contains('\n')) {
+    return '```' + (opts?.language ?? '') + '\n' + value + '\n```';
+  } else {
+    return '`' + value + '`';
+  }
 }
 module.exports.wrapInCode = wrapInCode;
 
