@@ -28,7 +28,7 @@ function wrapInCode(value, opts = null) {
     value = dbSerialize(value);
   }
   value = maxLength(value, opts?.maxLength ?? 1500);
-  if (value.contains('\n')) {
+  if (value.includes('\n')) {
     return '```' + (opts?.language ?? '') + '\n' + value + '\n```';
   } else {
     return '`' + value + '`';
