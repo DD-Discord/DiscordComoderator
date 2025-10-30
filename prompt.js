@@ -57,7 +57,7 @@ function replaceModerationPrompt(template, message, opts) {
   const author = message.author;
   const member = message.member;
   const guild = message.guild;
-  const attachments = message.attachments.map(attachment => `"${attachment.name}" (${attachment.contentType})`).join(', ') ?? 'No attachments';
+  const attachments = message.attachments.map(attachment => `"${attachment.name}" (${attachment.contentType})`).join(', ') || 'No attachments';
   const ignoreRolesRegex = new RegExp(opts.ignoreRolesRegex);
   return template
     .replaceAll('{userName}', author.username)
