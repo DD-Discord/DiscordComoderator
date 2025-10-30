@@ -30,7 +30,7 @@ async function generateReport(message) {
     return null;
   }
 
-  const data = dbGet("prompts", message.guildId);
+  const data = dbGet("guilds", message.guildId);
   const systemPrompt = getSystemPrompt(message.guild);
   const moderationPrompt = getModerationPrompt(message);
   if (!systemPrompt || !moderationPrompt || !data) {

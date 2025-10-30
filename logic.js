@@ -15,10 +15,10 @@ async function moderateMessage(message) {
   }
 
   if (report.flag) {
-    const channelData = dbGet("channels", message.guildId);
-    if (channelData) {
-      const reportChannel = await message.guild.channels.fetch(channelData.id);
-      reportChannel.send(buildReportEmbed(message, report, channelData));
+    const guildSettings = dbGet("guilds", message.guildId);
+    if (guildSettings.report) {
+      const reportChannel = await message.guild.channels.fetch(guildSettings.report.channel.id);
+      reportChannel.send(buildReportEmbed(message, report, guildSettings));
     }
   }
 }

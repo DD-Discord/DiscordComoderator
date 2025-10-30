@@ -5,7 +5,7 @@ const { dbGet, dbGetAll } = require("./db");
  * @param {Guild} guild 
  */
 function getSystemPrompt(guild) {
-  const data = dbGet("prompts", guild.id);
+  const data = dbGet("guilds", guild.id);
   if (data === null) {
     return null;
   }
@@ -21,7 +21,7 @@ module.exports.getSystemPrompt = getSystemPrompt;
  */
 function getModerationPrompt(message) {
   const guild = message.guild;
-  const data = dbGet("prompts", guild.id);
+  const data = dbGet("guilds", guild.id);
   if (data === null) {
     return null;
   }

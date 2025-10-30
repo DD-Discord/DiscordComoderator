@@ -5,16 +5,15 @@ const { moderateMessage } = require("./logic");
 const { dbRegister } = require("./db");
 
 // Tables
-dbRegister("prompts");
-dbRegister("channels");
+dbRegister("guilds");
 dbRegister("rules");
 
 const client = new Client({
   intents: [
-		GatewayIntentBits.Guilds,
-		GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
-	],
+  ],
 });
 
 client.once(Events.ClientReady, () => {
@@ -30,7 +29,7 @@ client.on(Events.MessageCreate, async (message) => {
   if (message.channel != null) {
     try {
       await moderateMessage(message);
-    } catch(error) {
+    } catch (error) {
       console.error('Error moderating message', error);
     }
   }

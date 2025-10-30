@@ -1,13 +1,13 @@
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require("discord.js");
 const addInstructionButton = require('./interactions/buttons/add-instruction');
 const instructionModal = require('./interactions/modals/instruction');
+const { GuildInfo } = require('./util')
 
 /**
  * An instruction for the LLM.
  * @typedef {Object} Instruction
  * @property {string} instructionId
- * @property {string} guildId
- * @property {string} guildName
+ * @property {GuildInfo} guild
  * @property {string} text
  */
 
@@ -16,8 +16,8 @@ const instructionModal = require('./interactions/modals/instruction');
  * @returns {ModalBuilder}
  */
 function buildInstructionModal(instruction = {}) {
-  const modalId = instruction.instructionId 
-    ? instructionModal.name + '/' + instruction.instructionId 
+  const modalId = instruction.instructionId
+    ? instructionModal.name + '/' + instruction.instructionId
     : instructionModal.name;
   const modal = new ModalBuilder()
     .setCustomId(modalId)

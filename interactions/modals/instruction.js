@@ -1,5 +1,6 @@
 const { ModalSubmitInteraction } = require("discord.js");
 const { dbGet, dbWrite, dbId } = require("../../db");
+const { getGuildInfo } = require("../../util");
 
 module.exports.name = "instruction";
 
@@ -17,12 +18,11 @@ module.exports.execute = async function (interaction) {
     created = true;
     data = {
       instructionId,
-      guildId: interaction.guildId,
     }
   }
 
   data.text = interaction.fields.getTextInputValue('text');
-  data.guildName = interaction.guild.name;
+  data.guild = getGuildInfo(interaction.guild);
   dbWrite(["instructions", interaction.guildId], instructionId, data);
   interaction.reply({
     content: '# Instruction `' + instructionId + '` ' + (created ? 'created' : 'updated') + '\n```\n' + data.text + '\n```'

@@ -23,13 +23,25 @@ function maxLength(value, maxLength) {
 }
 module.exports.maxLength = maxLength;
 
+/**
+ * Wraps the given value in a code block. Might return a single or multi line code block dependong on usage.
+ * @param {any} value The value to wrap in code. If it is not a string it will be serialized.
+ * @param {{maxLength?: number, language?: string, forceLine?: "single" | "multi"}?} opts Additional options for formatting.
+ * @returns {string} The formatting string.
+ */
 function wrapInCode(value, opts = null) {
-  if (typeof value !== 'string') {
+  let lang = opts?.language;
+  if (value === undefined) {
+    value = 'undefined';
+  } else if (typeof value !== 'string') {
     value = dbSerialize(value);
+    if (!lang) {
+      lang = 'json';
+    }
   }
   value = maxLength(value, opts?.maxLength ?? 1500);
-  if (value.includes('\n')) {
-    return '```' + (opts?.language ?? '') + '\n' + value + '\n```';
+  if (opts?.forceLine !== "single" && (opts?.forceLine === "multi" || value.includes('\n'))) {
+    return '```' + (lang ?? '') + '\n' + value + '\n```';
   } else {
     return '`' + value + '`';
   }

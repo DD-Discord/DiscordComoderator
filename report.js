@@ -1,11 +1,12 @@
 const { Message, EmbedBuilder } = require("discord.js");
 const { maxLength, sanitizeWhitespace } = require('./fmt');
 const { OLLAMA_CLOUD_API_KEY } = require("./config");
+const { RoleInfo } = require("./util");
 
 /**
  * @param {Message} message
  * @param {{reason: string, action: string}} report
- * @param {{pingId: string?}} options
+ * @param {{ping: RoleInfo?}} options
  */
 function buildReportEmbed(message, report, options) {
   const embed = new EmbedBuilder()
@@ -30,6 +31,6 @@ function buildReportEmbed(message, report, options) {
     { name: ':information_source: Comoderator recommendation', value: '> Comoderator recommends the following action: ' + report.action },
   ]);
 
-  return { embeds: [embed], content: options.pingId ? `<@&${options.pingId}>` : undefined, allowedMentions: { roles: options.pingId ? [options.pingId] : [] } };
+  return { embeds: [embed], content: options.ping.id ? `<@&${options.ping.id}>` : undefined, allowedMentions: { roles: options.ping.id ? [options.ping.id] : [] } };
 }
 module.exports.buildReportEmbed = buildReportEmbed;

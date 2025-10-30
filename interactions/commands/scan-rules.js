@@ -3,6 +3,7 @@ const { dbWrite } = require("../../db");
 const { PermissionFlagsBits } = require('discord-api-types/v10');
 const { parseRulesFromMessage } = require("../../rules");
 const { wrapInCode } = require('../../fmt');
+const { getGuildInfo } = require("../../util");
 
 module.exports.name = "comoderator-scan-rules";
 
@@ -16,12 +17,12 @@ module.exports.data = new SlashCommandBuilder()
     option.setRequired(true);
     return option;
   });
-    
+
 
 /**
  * @param {CommandInteraction} interaction
  */
-module.exports.execute = async function(interaction) {
+module.exports.execute = async function (interaction) {
   /** @type {Channel} */
   const channel = interaction.options.getChannel("channel");
   /** @type {Collection<string, Message>>} */
@@ -32,11 +33,10 @@ module.exports.execute = async function(interaction) {
   const rules = messages.map(parseRulesFromMessage).join('\n\n');
 
   dbWrite('rules', interaction.guildId, {
-    guildId: interaction.guildId,
-    guildName: interaction.guildName,
+    guild: getGuildInfo(interaction.guild),
     rules,
   });
-  
+
   // Done
   return interaction.reply({
     content: `# Updated rules from ${messages.length} messages\nSee the atttachment for all rules.`,

@@ -7,6 +7,13 @@ const crypto = require("crypto");
  * @typedef {(string | string[])} Table
  */
 
+/**
+ * Base type for all DB records
+ * @typedef {Object} DbRecord
+ * @property {Date?} createdAt When the record was created. Only set during the first save.
+ * @property {Date?} updatedAt When the record was last saved. Set on each save.
+ */
+
 const cache = {};
 
 function tableToStr(table) {
@@ -19,14 +26,13 @@ function tableToStr(table) {
 /**
  * Gets the cache of a table.
  * @param {Table} table The table name
- * @returns {Record<string, any>} The cache
+ * @returns {Record<string, DbRecord>} The cache
  */
 function tableCache(table) {
   table = tableToStr(table);
   let tableCache = cache[table];
   if (!tableCache) {
-    tableCache = {};
-    cache[table] = tableCache;
+    throw new Error(`The table '${table}' has not been registered.`);
   }
   return tableCache;
 }
@@ -40,21 +46,36 @@ function dbId() {
 }
 module.exports.dbId = dbId;
 
+/**
+ * Registers a table and ensures its directory exists.
+ * @param {Table} table The table to register.
+ */
 function dbRegister(table) {
   const dir = dbDir(table);
-  if (!fs.existsSync(dir)){
+  if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
     console.log('Created table', table, dir);
   }
+  cache[tableToStr(table)] = {};
   console.log('Registered table', table)
 }
 module.exports.dbRegister = dbRegister;
 
+/**
+ * Serializes an object to the database, using its internal replacer function.
+ * @param {DbRecord} data The data to serialize.
+ * @returns {string} The string for the database.
+ */
 function dbSerialize(data) {
   return JSON.stringify(data, replacer, 2);
 }
 module.exports.dbSerialize = dbSerialize;
 
+/**
+ * Deserializes an object previously serialized via `dbSerialize` by using its internal reviver function.
+ * @param {string} data The string to deserialize.
+ * @returns {DbRecord} The object.
+ */
 function dbDeserialize(data) {
   return JSON.parse(data, reviver);
 }
@@ -77,10 +98,20 @@ function dbDelete(table, id) {
 }
 module.exports.dbDelete = dbDelete;
 
+/**
+ * Writes an entry to the database.
+ * @param {Table} table The table.
+ * @param {string} id The record ID.
+ * @param {DbRecord} data The data to write.
+ */
 function dbWrite(table, id, data) {
   if (typeof id !== 'string') {
     throw new Error(`Invalid ID '${id}' for table '${tableToStr(table)}'`);
   }
+  if (!data.createdAt) {
+    data.createdAt = new Date();
+  }
+  data.updatedAt = new Date();
   const file = dbFile(table, id);
   fs.writeFileSync(file, dbSerialize(data));
   tableCache(table)[id] = data;
@@ -91,7 +122,7 @@ module.exports.dbWrite = dbWrite;
  * Gets an entry from the database.
  * @param {Table} table The table name
  * @param {string} id The record ID.
- * @returns {object | null} The entry
+ * @returns {DbRecord | null} The entry
  */
 function dbGet(table, id) {
   if (typeof id !== 'string') {
@@ -115,7 +146,7 @@ module.exports.dbGet = dbGet;
 /**
  * Gets all entires of a given table from the database.
  * @param {Table} table The table name
- * @returns {object[]} The entries
+ * @returns {DbRecord[]} The entries
  */
 function dbGetAll(table) {
   const files = fs.readdirSync(dbDir(table));
@@ -149,9 +180,9 @@ function dbFile(table, id) {
  */
 function dbSafe(value) {
   if (Array.isArray(value)) {
-    return value.flatMap(dbSafe)
+    return value.flatMap(dbSafe);
   }
-  return [value.replace(/[^a-z0-9]/gi, '_').toLowerCase()];
+  return [value.replaceAll(/[^a-z0-9]/gi, '_').toLowerCase()];
 }
 
 function reviver(key, value) {

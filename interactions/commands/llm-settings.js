@@ -3,6 +3,7 @@ const { dbGet, dbWrite } = require("../../db");
 const { PermissionFlagsBits, TextInputStyle } = require('discord-api-types/v10');
 const dedent = require('string-dedent');
 const systemPromptModal = require('../modals/system-prompt');
+const { getGuildInfo } = require("../../util");
 
 module.exports.name = "comoderator-llm-settings";
 
@@ -14,12 +15,11 @@ module.exports.data = new SlashCommandBuilder()
 /**
  * @param {CommandInteraction} interaction
  */
-module.exports.execute = async function(interaction) {
-  let data = dbGet("prompts", interaction.guildId);
+module.exports.execute = async function (interaction) {
+  let data = dbGet("guilds", interaction.guildId);
   if (data === null) {
     data = {
-      guildId: interaction.guildId,
-      guildName: interaction.guild.name,
+      guild: getGuildInfo(interaction.guild),
       // The system prompt
       prompt: dedent`
       You are a Discord bot called 'Comoderator' on the server '{guildName}'. Your job is to alert moderators about suspicious messages.
@@ -95,8 +95,8 @@ module.exports.execute = async function(interaction) {
 
   modal.addComponents(modelRow, promptRow, templateRow);
 
-  dbWrite("prompts", interaction.guildId, data);
-  
+  dbWrite("guilds", interaction.guildId, data);
+
   // Done
   return interaction.showModal(modal);
 };

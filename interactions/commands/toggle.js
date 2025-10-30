@@ -19,8 +19,8 @@ module.exports.data = new SlashCommandBuilder()
 /**
  * @param {CommandInteraction} interaction
  */
-module.exports.execute = async function(interaction) {
-  const data = dbGet("prompts", interaction.guildId);
+module.exports.execute = async function (interaction) {
+  const data = dbGet("guilds", interaction.guildId);
   if (!data) {
     return interaction.reply({
       content: `# Comoderator not set up\nSet up comoderator before disabling/enabling it.`,
@@ -30,8 +30,8 @@ module.exports.execute = async function(interaction) {
   const toggle = interaction.options.getBoolean("toggle");
   data.enabled = toggle;
 
-  dbWrite("prompts", interaction.guildId, data);
-  
+  dbWrite("guilds", interaction.guildId, data);
+
   // Done
   return interaction.reply({
     content: `# Comoderator toggled\nComoderator now enabled: ${wrapInCode(data.enabled)}`,
