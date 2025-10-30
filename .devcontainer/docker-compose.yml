@@ -1,0 +1,16 @@
+services:
+  app:
+    image: nodejs/devcontainer:nightly
+    volumes:
+      - ..:/workspace:cached
+      - vscode-extension:/root/.vscode-server-insiders
+    command: sleep infinity
+  ollama:
+    image: ollama/ollama
+    restart: unless-stopped
+    entrypoint: [ "/bin/bash", "-c", "ollama serve & sleep 5 && ollama pull gpt-oss:20b && wait" ]
+
+# ...other services
+
+volumes:
+  vscode-extension:
