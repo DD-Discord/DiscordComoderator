@@ -1,5 +1,6 @@
 const { Message, EmbedBuilder } = require("discord.js");
 const { maxLength, sanitizeWhitespace } = require('./fmt');
+const { OLLAMA_CLOUD_API_KEY } = require("./config");
 
 /**
  * @param {Message} message
@@ -12,7 +13,11 @@ function buildReportEmbed(message, report, options) {
     .setTitle('Comoderator flagged a message')
     .setURL(message.url)
     .setDescription('Please review the report and take action accordingly.')
-    .setFooter({ text: 'Comoderator is an AI and can make mistakes. Comoderators LLM is locally hosted, no data leaves the server.' });
+    .setFooter({
+      text: OLLAMA_CLOUD_API_KEY
+        ? 'Comoderator is an AI and can make mistakes.'
+        : 'Comoderator is an AI and can make mistakes. Comoderators LLM is locally hosted, no data leaves the server.'
+    });
 
   embed.setAuthor({
     name: message.author.username,
@@ -22,7 +27,7 @@ function buildReportEmbed(message, report, options) {
   embed.addFields([
     { name: ':e_mail: Offending message', value: '> ' + maxLength(sanitizeWhitespace(message.content), 500), },
     { name: ':page_facing_up: Comoderator report', value: '> ' + maxLength(report.reason, 1000), },
-    { name: ':information_source: Comoderator recommendation', value: '> Comoderator recommends the following action: ' + report.action},
+    { name: ':information_source: Comoderator recommendation', value: '> Comoderator recommends the following action: ' + report.action },
   ]);
 
   return { embeds: [embed], content: options.pingId ? `<@&${options.pingId}>` : undefined, allowedMentions: { roles: options.pingId ? [options.pingId] : [] } };

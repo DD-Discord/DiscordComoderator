@@ -3,9 +3,14 @@ const { dbGet } = require("./db");
 const { Ollama } = require('ollama');
 const { getSystemPrompt, getModerationPrompt } = require("./prompt");
 const { sanitizeWhitespace, COLOR } = require("./fmt");
-const { OLLAMA_HOST } = require("./config");
+const { OLLAMA_HOST, OLLAMA_CLOUD_API_KEY } = require("./config");
 
-const ollama = new Ollama({ host: OLLAMA_HOST });
+const ollama = new Ollama({
+  host: OLLAMA_HOST,
+  headers: OLLAMA_CLOUD_API_KEY && {
+    Authorization: "Bearer " + OLLAMA_CLOUD_API_KEY,
+  },
+});
 
 /**
  * A LLM report
@@ -40,7 +45,7 @@ async function generateReport(message) {
       { role: "user", content: moderationPrompt },
     ],
   })
-  
+
   let content = response.message.content;
   // Some models wrap code in Markdown tags
   if (content.startsWith('```json')) {
@@ -52,11 +57,11 @@ async function generateReport(message) {
   try {
     json = JSON.parse(content);
     console.log(`${COLOR.FG_MAGENTA}${message.author.username}${COLOR.RESET} ${COLOR.DIM}(${message.channel.name} in ${message.guild.name})${COLOR.RESET}: ${sanitizeWhitespace(message.content)}\n`, json);
-  } catch(error) {
+  } catch (error) {
     console.error('Received invalid JSON', response.message.content);
     return null;
   }
-  
+
   return json;
 }
 module.exports.generateReport = generateReport;
