@@ -10,7 +10,7 @@ module.exports.handleButton = async function handleButton(interaction) {
     const buttonName = customId.split('/')[0];
     console.log("Handle button %s (%s) in %s", buttonName, customId, interaction.guildId)
     if (buttons[buttonName]) {
-      buttons[buttonName].execute(interaction);
+      await buttons[buttonName].execute(interaction);
       return true;
     }
   } catch (error) {

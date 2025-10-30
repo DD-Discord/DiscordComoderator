@@ -24,7 +24,7 @@ module.exports.execute = async function (interaction) {
       prompt: dedent`
       You are a Discord bot called 'Comoderator' on the server '{guildName}'. Your job is to alert moderators about suspicious messages.
 
-      You will receive user messages in this format:
+      You will receive user messages in this format (You will potentially receive multiple messages at a time for context. If this is the case, take the current conversation context into account when moderating):
       {template}
 
       And respond with a JSON message in the following format:
@@ -93,7 +93,15 @@ module.exports.execute = async function (interaction) {
     .setValue(data.template);
   const templateRow = new ActionRowBuilder().addComponents(template);
 
-  modal.addComponents(modelRow, promptRow, templateRow);
+  const contextSize = new TextInputBuilder()
+    .setCustomId("contextSize")
+    .setLabel("Message context size (Max 100)")
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true)
+    .setValue(data.contextSize.toString());
+  const contextSizeRow = new ActionRowBuilder().addComponents(contextSize);
+
+  modal.addComponents(modelRow, promptRow, templateRow, contextSizeRow);
 
   dbWrite("guilds", interaction.guildId, data);
 

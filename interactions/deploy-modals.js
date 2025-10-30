@@ -10,7 +10,7 @@ module.exports.handleModal = async function handleModal(interaction) {
     const modalName = customId.split('/')[0];
     console.log("Handle modal %s (%s) in %s", modalName, customId, interaction.guildId)
     if (modals[modalName]) {
-      modals[modalName].execute(interaction);
+      await modals[modalName].execute(interaction);
       return true;
     }
   } catch (error) {

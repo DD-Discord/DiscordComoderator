@@ -39,7 +39,7 @@ module.exports.handleCommand = async function handleCommand(interaction) {
     const { commandName } = interaction;
     console.log("Handle command %s in %s", commandName, interaction.guildId)
     if (commands[commandName]) {
-      commands[commandName].execute(interaction);
+      await commands[commandName].execute(interaction);
       return true;
     }
   } catch (error) {

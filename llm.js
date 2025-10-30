@@ -37,11 +37,36 @@ async function generateReport(message) {
     return null;
   }
 
+  const context = await message.channel.messages.fetch({
+    before: message.id,
+    limit: data.contextSize,
+  });
+  const previous = context.map(getModerationPrompt);
+
   const response = await ollama.chat({
     model: data.model,
     think: false,
+    format: {
+      "type": "object",
+      "properties": {
+        "flag": {
+          "type": "boolean"
+        },
+        "action": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "flag",
+        "action"
+      ],
+    },
     messages: [
       { role: "system", content: systemPrompt },
+      ...previous.map(content => ({ role: "user", content })),
       { role: "user", content: moderationPrompt },
     ],
   })
@@ -56,7 +81,7 @@ async function generateReport(message) {
   let json;
   try {
     json = JSON.parse(content);
-    console.log(`${COLOR.FG_MAGENTA}${message.author.username}${COLOR.RESET} ${COLOR.DIM}(${message.channel.name} in ${message.guild.name})${COLOR.RESET}: ${sanitizeWhitespace(message.content)}\n`, json);
+    console.log(`${COLOR.FG_MAGENTA}${message.author.username}${COLOR.RESET} ${COLOR.DIM}(${message.channel.name} in ${message.guild.name})${COLOR.RESET}: ${sanitizeWhitespace(message.content)}\n${COLOR.DIM}${sanitizeWhitespace(response.message.thinking || 'No further thoughts.')}${COLOR.RESET}\n`, json);
   } catch (error) {
     console.error('Received invalid JSON', response.message.content);
     return null;
