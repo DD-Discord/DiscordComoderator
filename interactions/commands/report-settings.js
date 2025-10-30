@@ -43,6 +43,7 @@ module.exports.execute = async function (interaction) {
     channel: getChannelInfo(channel),
     ping: getRoleInfo(ping),
   };
+  dbWrite("guilds", interaction.guildId, data);
 
   // Done
   return interaction.reply({

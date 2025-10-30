@@ -2,7 +2,6 @@ const { CommandInteraction, SlashCommandBuilder, Message, Channel, Collection } 
 const { dbWrite } = require("../../db");
 const { PermissionFlagsBits } = require('discord-api-types/v10');
 const { parseRulesFromMessage } = require("../../rules");
-const { wrapInCode } = require('../../fmt');
 const { getGuildInfo } = require("../../util");
 
 module.exports.name = "comoderator-scan-rules";
