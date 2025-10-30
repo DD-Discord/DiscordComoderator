@@ -1,5 +1,6 @@
 const { Guild, Message } = require("discord.js");
 const { dbGet, dbGetAll } = require("./db");
+const { sanitizeWhitespace } = require("./fmt");
 
 /**
  * @param {Guild} guild 
@@ -39,7 +40,7 @@ module.exports.getModerationPrompt = getModerationPrompt;
  */
 function replaceSystemPrompt(prompt, guild, instructions, rules, template) {
   return prompt
-    .replaceAll('{instructions}', instructions.map(i => '- ' + i.text.replaceAll('\n', ' ')).join('\n'))
+    .replaceAll('{instructions}', instructions.map(i => '- ' + sanitizeWhitespace(i.text)).join('\n'))
     .replaceAll('{guildId}', guild.id)
     .replaceAll('{guildName}', guild.name)
     .replaceAll('{approximateMemberCount}', guild.approximateMemberCount)
@@ -53,18 +54,19 @@ function replaceSystemPrompt(prompt, guild, instructions, rules, template) {
  * @param {{ignoreRolesRegex: string}} opts Options for the prompt
  */
 function replaceModerationPrompt(template, message, opts) {
+  const author = message.author;
   const member = message.member;
   const guild = message.guild;
   const ignoreRolesRegex = new RegExp(opts.ignoreRolesRegex);
   return template
-    .replaceAll('{userName}', member.user.username)
-    .replaceAll('{displayName}', member.displayName)
-    .replaceAll('{accountAge}', member.user.createdAt.toLocaleDateString("en-US"))
-    .replaceAll('{joinedAt}', member.joinedAt.toLocaleDateString("en-US"))
+    .replaceAll('{userName}', author.username)
+    .replaceAll('{displayName}', member?.displayName ?? author.displayName)
+    .replaceAll('{accountAge}', author.createdAt.toLocaleDateString("en-US"))
+    .replaceAll('{joinedAt}', member?.joinedAt.toLocaleDateString("en-US") ?? 'Not available')
     .replaceAll('{now}', new Date().toLocaleDateString("en-US"))
-    .replaceAll('{guildId}', guild.id)
-    .replaceAll('{guildName}', guild.name)
-    .replaceAll('{roles}', member.roles.cache.filter(r => !ignoreRolesRegex.test(r.name)).filter(r => r.name !== "@everyone").map(r => '"' + r.name + '"').join(", "))
+    .replaceAll('{guildId}', guild?.id ?? 'Not available')
+    .replaceAll('{guildName}', guild?.name ?? 'Not available')
+    .replaceAll('{roles}', member?.roles.cache.filter(r => !ignoreRolesRegex.test(r.name)).filter(r => r.name !== "@everyone").map(r => '"' + r.name + '"').join(", ") ?? 'Not available')
     .replaceAll('{channelName}', message.channel.name)
     .replaceAll('{message}', message.content);
 }
