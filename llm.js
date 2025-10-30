@@ -18,6 +18,7 @@ const ollama = new Ollama({
  * @property {boolean} flag
  * @property {string} action
  * @property {string} reason
+ * @property {string} thoughts
  */
 
 /**
@@ -81,7 +82,8 @@ async function generateReport(message) {
   let json;
   try {
     json = JSON.parse(content);
-    console.log(`${COLOR.FG_MAGENTA}${message.author.username}${COLOR.RESET} ${COLOR.DIM}(${message.channel.name} in ${message.guild.name})${COLOR.RESET}: ${sanitizeWhitespace(message.content)}\n${COLOR.DIM}${sanitizeWhitespace(response.message.thinking || 'No further thoughts.')}${COLOR.RESET}\n`, json);
+    json.thoughts = response.message.thinking ? sanitizeWhitespace(response.message.thinking) : 'No further thoughts.';
+    console.log(`${COLOR.FG_MAGENTA}${message.author.username}${COLOR.RESET} ${COLOR.DIM}(${message.channel.name} in ${message.guild.name})${COLOR.RESET}: ${sanitizeWhitespace(message.content)}\n${COLOR.DIM}${json.thoughts}${COLOR.RESET}\n`, json);
   } catch (error) {
     console.error('Received invalid JSON', response.message.content);
     return null;
