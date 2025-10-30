@@ -56,6 +56,7 @@ module.exports.execute = async function (interaction) {
       Discord account creation date: {accountAge} (Today is {now})
       Roles: {roles}
       Sent in channel: {channelName}
+      Attachments: {attachments}
       Message: {message}
       `,
       // Ignore separator roles by default

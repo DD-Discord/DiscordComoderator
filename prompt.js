@@ -57,6 +57,7 @@ function replaceModerationPrompt(template, message, opts) {
   const author = message.author;
   const member = message.member;
   const guild = message.guild;
+  const attachments = message.attachments.map(attachment => `"${attachment.name}" (${attachment.contentType})`).join(', ') ?? 'No attachments';
   const ignoreRolesRegex = new RegExp(opts.ignoreRolesRegex);
   return template
     .replaceAll('{userName}', author.username)
@@ -68,5 +69,6 @@ function replaceModerationPrompt(template, message, opts) {
     .replaceAll('{guildName}', guild?.name ?? 'Not available')
     .replaceAll('{roles}', member?.roles.cache.filter(r => !ignoreRolesRegex.test(r.name)).filter(r => r.name !== "@everyone").map(r => '"' + r.name + '"').join(", ") ?? 'Not available')
     .replaceAll('{channelName}', message.channel.name)
+    .replaceAll('{attachments}', attachments)
     .replaceAll('{message}', message.content);
 }
