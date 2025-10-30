@@ -44,11 +44,13 @@ module.exports.execute = async function (interaction) {
     });
   }
 
+  await interaction.deferReply();
+
   const report = await generateReport(message);
   const reportJson = dbSerialize(report);
 
   // Done
-  return interaction.reply({
+  return interaction.editReply({
     content: `# Moderation prompt\nSee attachment for the moderation prompt.`,
     files: [
       {
